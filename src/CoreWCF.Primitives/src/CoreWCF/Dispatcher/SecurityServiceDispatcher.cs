@@ -601,10 +601,11 @@ namespace CoreWCF.Dispatcher
 
         public override async Task DispatchAsync(Message message)
         {
+            Fx.Assert(State == CommunicationState.Opened, "Expected dispatcher state to be Opened, instead it's " + State.ToString());
             ProcessInnerItem(message, ServiceDefaults.SendTimeout);
-            IServiceChannelDispatcher serviceChannelDispatcher =
-            await SecurityServiceDispatcher.GetAuthChannelDispatcher(this);
-            await serviceChannelDispatcher.DispatchAsync(message);
+            var securityAuthServiceDispatcher = await SecurityServiceDispatcher.
+                 SecurityAuthServiceDispatcher.CreateServiceChannelDispatcherAsync(this);
+            await securityAuthServiceDispatcher.DispatchAsync(message);
         }
 
         public Task SendAsync(Message message)
